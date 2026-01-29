@@ -7,16 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Clase para definir los datos de salida del token
+ * Dto de respuesta para la validación del token
  */
 @Data
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TokenResponse {
-    /** Token generado */
-    @Schema(description = "Token generado", example = "eyJ1c2VybmFtZSI6dXNlcm5hbWUsImVudGl0eSI6ZW50aXR5fQ.eyJ1c2VybmFtZSI6InVzZXJuYW1lIiwiZW50aXR5IjoiZW50aXR5IiwiaWF0IjoxNzY4OTk2OTIyLCJleHAiOjE3NjkwMDA1MjJ9.miUs7SsKQ55XQdjjvgSDuSZ3jxpDlcs60wzN9X_-N8c")
-    private String token;
+public class TokenValidationResponse {
 
     /** Generado correctamente */
     @Schema(description = "Generado correctamente", example = "true")

@@ -58,6 +58,28 @@ class UserServiceImplTest {
     }
 
     @Test
+    void testValidateUserIncorrectPassword() {
+        Optional<User> user = Optional.of(User.builder()
+                .username("username")
+                .password("pass")
+                .entity("entity")
+                .build());
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.validateUser(TestUtils.generateTokenRequest()));
+    }
+
+    @Test
+    void testValidateUserIncorrectEntity() {
+        Optional<User> user = Optional.of(User.builder()
+                .username("username")
+                .password("password")
+                .entity("entity2")
+                .build());
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.validateUser(TestUtils.generateTokenRequest()));
+    }
+
+    @Test
     void testValidateUserException() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(Optional.empty());
         Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.validateUser(TestUtils.generateTokenRequest()));

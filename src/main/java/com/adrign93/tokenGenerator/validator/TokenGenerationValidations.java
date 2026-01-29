@@ -8,12 +8,12 @@ import java.util.Objects;
 /**
  * Clase para validar los datos de entrada
  */
-public class TokenValidations {
+public class TokenGenerationValidations {
 
     /**
      * Constructor privado para evitar instanciar la clase
      */
-    private TokenValidations(){}
+    private TokenGenerationValidations(){}
 
     /**
      * Validaciones para los datos de entrada

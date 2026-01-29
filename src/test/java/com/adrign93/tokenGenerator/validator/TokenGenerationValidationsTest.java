@@ -7,11 +7,11 @@ import static com.adrign93.tokenGenerator.utils.TestUtils.generateTokenRequest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-class TokenValidationsTest {
+class TokenGenerationValidationsTest {
 
     @Test
     void testRulesNullRequest() {
-        assertThatThrownBy(() -> TokenValidations.rules.get(0).validate(null))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(0).validate(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Los parametros no pueden ser nulos");
     }
@@ -20,11 +20,11 @@ class TokenValidationsTest {
     void testRulesNullUsername() {
         TokenRequest tokenRequest = generateTokenRequest();
         tokenRequest.setUsername(null);
-        assertThatThrownBy(() -> TokenValidations.rules.get(1).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(1).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("El username no puede estar vacio");
         tokenRequest.setUsername("");
-        assertThatThrownBy(() -> TokenValidations.rules.get(1).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(1).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("El username no puede estar vacio");
     }
@@ -33,11 +33,11 @@ class TokenValidationsTest {
     void testRulesNullPassword() {
         TokenRequest tokenRequest = generateTokenRequest();
         tokenRequest.setPassword(null);
-        assertThatThrownBy(() -> TokenValidations.rules.get(2).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(2).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("La contraseña no puede estar vacia");
         tokenRequest.setPassword("");
-        assertThatThrownBy(() -> TokenValidations.rules.get(2).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(2).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("La contraseña no puede estar vacia");
     }
@@ -46,11 +46,11 @@ class TokenValidationsTest {
     void testRulesNullEntity() {
         TokenRequest tokenRequest = generateTokenRequest();
         tokenRequest.setEntity(null);
-        assertThatThrownBy(() -> TokenValidations.rules.get(3).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(3).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("La entity no puede estar vacia");
         tokenRequest.setEntity("");
-        assertThatThrownBy(() -> TokenValidations.rules.get(3).validate(tokenRequest))
+        assertThatThrownBy(() -> TokenGenerationValidations.rules.get(3).validate(tokenRequest))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("La entity no puede estar vacia");
     }
@@ -58,7 +58,7 @@ class TokenValidationsTest {
     @Test
     void testRules() {
         assertDoesNotThrow(() -> {
-            TokenValidations.rules.forEach(rule -> rule.validate(generateTokenRequest()));
+            TokenGenerationValidations.rules.forEach(rule -> rule.validate(generateTokenRequest()));
         });
     }
 

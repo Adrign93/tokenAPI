@@ -1,5 +1,6 @@
 package com.adrign93.tokenGenerator.controller;
 
+import com.adrign93.tokenGenerator.domain.dto.TokenErrorResponse;
 import com.adrign93.tokenGenerator.domain.dto.TokenResponse;
 import com.adrign93.tokenGenerator.exception.InternalServerException;
 import com.adrign93.tokenGenerator.exception.ResourceNotFoundException;
@@ -22,8 +23,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<TokenResponse> handleInternalServerException(InternalServerException ex) {
         return ResponseEntity.status(500).body(TokenResponse.builder()
                         .success(false)
-                        .errorCode("500")
-                        .message(ex.getMessage())
+                        .error(TokenErrorResponse.builder()
+                                .errorCode("500")
+                                .message(ex.getMessage())
+                                .build())
                 .build());
     }
 
@@ -36,8 +39,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<TokenResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(400).body(TokenResponse.builder()
                 .success(false)
-                .errorCode("400")
-                .message(ex.getMessage())
+                .error(TokenErrorResponse.builder()
+                        .errorCode("400")
+                        .message(ex.getMessage())
+                        .build())
                 .build());
     }
 
@@ -50,8 +55,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<TokenResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(404).body(TokenResponse.builder()
                 .success(false)
-                .errorCode("404")
-                .message(ex.getMessage())
+                .error(TokenErrorResponse.builder()
+                        .errorCode("404")
+                        .message(ex.getMessage())
+                        .build())
                 .build());
     }
 }
