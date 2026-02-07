@@ -2,10 +2,11 @@ package com.adrign93.tokenGenerator.service;
 
 import com.adrign93.tokenGenerator.domain.dto.TokenRequest;
 import com.adrign93.tokenGenerator.domain.dto.TokenResponse;
-import com.adrign93.tokenGenerator.domain.dto.TokenValidationResponse;
 import com.adrign93.tokenGenerator.domain.entity.User;
+import com.adrign93.tokenGenerator.exception.ExpirationException;
 import com.adrign93.tokenGenerator.exception.InternalServerException;
-import com.adrign93.tokenGenerator.utils.TokenEncodeUtils;
+import com.adrign93.tokenGenerator.exception.TokenFormatException;
+import com.adrign93.tokenGenerator.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -76,113 +76,76 @@ class TokenGeneratorServiceImplTest {
     }
 
     @Test
-    void validateTokenExpirationFalse() throws Exception {
+    void testValidateTokenExpirationException() throws Exception {
         String username = "username";
         String password = "password";
 
         long expSeconds = clock.instant().minusSeconds(1).getEpochSecond();
-        String token = buildSignedToken(username, expSeconds, password);
+        String token = TestUtils.buildSignedToken(username, expSeconds, password);
 
-        TokenValidationResponse response = tokenGeneratorService.validateToken(token);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        Assertions.assertThrows(ExpirationException.class, () -> tokenGeneratorService.isAValidToken(token));
     }
 
     @Test
-    void validateTokenUserNotFoundFalse() throws Exception {
-        String username = "username";
-        String password = "password";
-
-        long expSeconds = clock.instant().plusSeconds(expirationDePrueba).getEpochSecond();
-        String token = buildSignedToken(username, expSeconds, password);
-
-        Mockito.when(userService.findByUsername(Mockito.anyString()))
-                .thenReturn(null);
-
-        TokenValidationResponse response = tokenGeneratorService.validateToken(token);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
-    }
-
-    @Test
-    void validateTokenExpirationTrue() throws Exception {
+    void testValidateTokenExpirationOk() throws Exception {
         String username = "username";
         String password = "password";
         Mockito.when(userService.findByUsername(Mockito.anyString()))
                 .thenReturn(User.builder().username(username).password(password).build());
 
         long expSeconds = clock.instant().plusSeconds(expirationDePrueba).getEpochSecond();
-        String token = buildSignedToken(username, expSeconds, password);
+        String token = TestUtils.buildSignedToken(username, expSeconds, password);
 
-        TokenValidationResponse response = tokenGeneratorService.validateToken(token);
+        tokenGeneratorService.isAValidToken(token);
 
-        Assertions.assertNotNull(response);
-        Assertions.assertTrue(response.isSuccess());
+        Mockito.verify(userService, Mockito.times(1)).findByUsername(username);
     }
 
     @Test
-    void validateTokenUserException() throws Exception {
+    void testValidateTokenUserException() throws Exception {
         String username = "username";
         String password = "password";
 
         long expSeconds = clock.instant().plusSeconds(expirationDePrueba).getEpochSecond();
         String token = buildInvalidToken(username, expSeconds, password);
 
-        TokenValidationResponse response = tokenGeneratorService.validateToken(token);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        Assertions.assertThrows(TokenFormatException.class, () -> tokenGeneratorService.isAValidToken(token));
     }
 
     @Test
-    void validateTokenUserParts() throws Exception {
+    void testValidateTokenUserPartsException() throws Exception {
         String username = "username";
         String password = "password";
 
         long expSeconds = clock.instant().plusSeconds(expirationDePrueba).getEpochSecond();
         String token = buildInvalidSignature(username, expSeconds, password);
 
-        TokenValidationResponse response = tokenGeneratorService.validateToken(token);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        Assertions.assertThrows(TokenFormatException.class, () -> tokenGeneratorService.isAValidToken(token));
     }
 
-    private String buildToken(String headerJson, String payloadJson, String userPassword, boolean includeSignature) throws Exception {
-        String encodedHeader = TokenEncodeUtils.encode(headerJson.getBytes(StandardCharsets.UTF_8));
-        String encodedPayload = TokenEncodeUtils.encode(payloadJson.getBytes(StandardCharsets.UTF_8));
+    @Test
+    void testValidateSignatureException() throws Exception {
+        String username = "usernameException";
+        String password = "passwordExpception";
+        Mockito.when(userService.findByUsername(Mockito.anyString()))
+                .thenReturn(User.builder().username(username).password(password).build());
 
-        String signatureInput = encodedHeader + "." + encodedPayload;
+        long expSeconds = clock.instant().plusSeconds(expirationDePrueba).getEpochSecond();
+        String token = TestUtils.buildSignedToken("username", expSeconds, "password");
 
-        if (!includeSignature) {
-            return signatureInput;
-        }
-
-        String signature = TokenEncodeUtils.encode(
-                TokenEncodeUtils.hmacSha256(signatureInput, secretDePrueba.concat(userPassword))
-        );
-
-        return signatureInput + "." + signature;
-    }
-
-    private String buildSignedToken(String username, long expSeconds, String userPassword) throws Exception {
-        String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-        String payloadJson = "{\"username\":\"" + username + "\",\"exp\":" + expSeconds + "}";
-        return buildToken(headerJson, payloadJson, userPassword, true);
+        Assertions.assertThrows(TokenFormatException.class, () -> tokenGeneratorService.isAValidToken(token));
     }
 
     private String buildInvalidToken(String username, long expSeconds, String userPassword) throws Exception {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         String payloadJson = username + "\",\"exp\":" + expSeconds;
-        return buildToken(headerJson, payloadJson, userPassword, true);
+        return TestUtils.buildToken(headerJson, payloadJson, userPassword, true);
     }
 
     private String buildInvalidSignature(String username, long expSeconds, String userPassword) throws Exception {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         String payloadJson = "{\"username\":\"" + username + "\",\"exp\":" + expSeconds + "}";
-        return buildToken(headerJson, payloadJson, userPassword, false);
+        return TestUtils.buildToken(headerJson, payloadJson, userPassword, false);
     }
 
 }

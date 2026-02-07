@@ -14,8 +14,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Operación realizada correctamente"),
         @ApiResponse(responseCode = "400", description = "Error en los datos de entrada"),
+        @ApiResponse(responseCode = "401", description = "Error al validar el token"),
+        @ApiResponse(responseCode = "404", description = "No se ha encontrado el usuario"),
         @ApiResponse(responseCode = "500", description = "Error interno")
 })
 public @interface TokenDocs {

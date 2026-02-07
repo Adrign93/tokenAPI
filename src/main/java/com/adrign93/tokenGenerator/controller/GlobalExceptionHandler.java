@@ -2,8 +2,10 @@ package com.adrign93.tokenGenerator.controller;
 
 import com.adrign93.tokenGenerator.domain.dto.TokenErrorResponse;
 import com.adrign93.tokenGenerator.domain.dto.TokenResponse;
+import com.adrign93.tokenGenerator.exception.ExpirationException;
 import com.adrign93.tokenGenerator.exception.InternalServerException;
 import com.adrign93.tokenGenerator.exception.ResourceNotFoundException;
+import com.adrign93.tokenGenerator.exception.TokenFormatException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -61,4 +63,38 @@ public class GlobalExceptionHandler {
                         .build())
                 .build());
     }
+
+    /**
+     * En caso de fallar la validacion del token devuelve un error 400
+     * @param ex TokenFormatException
+     * @return ResponseEntity
+     */
+    @ExceptionHandler(TokenFormatException.class)
+    public ResponseEntity<TokenResponse> handleTokenFormatException(TokenFormatException ex) {
+        return ResponseEntity.status(400).body(TokenResponse.builder()
+                .success(false)
+                .error(TokenErrorResponse.builder()
+                        .errorCode("400")
+                        .message(ex.getMessage())
+                        .build())
+                .build());
+    }
+
+    /**
+     * En caso de fallar la validacion del token devuelve un error 401
+     * @param ex ExpirationException
+     * @return ResponseEntity
+     */
+    @ExceptionHandler(ExpirationException.class)
+    public ResponseEntity<TokenResponse> handleExpirationException(ExpirationException ex) {
+        return ResponseEntity.status(401).body(TokenResponse.builder()
+                .success(false)
+                .error(TokenErrorResponse.builder()
+                        .errorCode("401")
+                        .message(ex.getMessage())
+                        .build())
+                .build());
+    }
+
+
 }

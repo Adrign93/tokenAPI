@@ -11,6 +11,7 @@ import com.adrign93.tokenGenerator.validator.TokenGenerationValidations;
 import com.adrign93.tokenGenerator.validator.TokenValidValidations;
 import com.adrign93.tokenGenerator.validator.Validator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,7 @@ public class TokenController {
      */
     @Operation(summary = "Obtiene el token de un usuario", description = "Obtiene el token generado de un usuario ")
     @TokenDocs
+    @ApiResponse(responseCode = "200", description = "Token generado correctamente")
     @PostMapping
     public ResponseEntity<TokenResponse> generateToken(@RequestBody TokenRequest tokenRequest) {
         // Validamos los datos de entrada
@@ -63,12 +65,16 @@ public class TokenController {
      */
     @Operation(summary = "Valida el token de un usuario", description = "Valida el token generado de un usuario ")
     @TokenDocs
+    @ApiResponse(responseCode = "202", description = "Token validado correctamente")
     @PostMapping(path = "/validate")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest tokenRequest) {
 
         // Validamos los datos de entrada
         Validator.applyRules(TokenValidValidations.rules, tokenRequest);
 
-        return ResponseEntity.ok(this.tokenService.validateToken(tokenRequest.getToken()));
+        // Validamos el token
+        this.tokenService.isAValidToken(tokenRequest.getToken());
+
+        return ResponseEntity.noContent().build();
     }
 }

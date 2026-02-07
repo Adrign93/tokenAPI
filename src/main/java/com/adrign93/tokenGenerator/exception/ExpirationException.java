@@ -4,16 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Excepcion para lanzar un 500 si falla el algoritmo de conversion
+ * Excepcion para controlar cuando un token ha expirado
  */
-@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class InternalServerException extends RuntimeException{
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
+public class ExpirationException extends RuntimeException{
 
     /**
      * Constructor
      * @param message String
      */
-    public InternalServerException(String message) {
+    public ExpirationException(String message) {
         super(message);
     }
 }

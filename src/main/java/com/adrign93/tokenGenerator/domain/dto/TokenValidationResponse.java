@@ -15,10 +15,6 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenValidationResponse {
 
-    /** Generado correctamente */
-    @Schema(description = "Generado correctamente", example = "true")
-    private boolean success;
-
     /** Error response */
     private TokenErrorResponse error;
 }

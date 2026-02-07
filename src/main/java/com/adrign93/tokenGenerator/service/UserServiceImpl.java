@@ -41,10 +41,31 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public void validateUser(TokenRequest tokenRequest){
-        User user = TokenToUser.mapTokenToUser(tokenRequest);
-        User userFound = findByUsername(user.getUsername());
-        if(!userFound.getPassword().equals(user.getPassword())
-            || !userFound.getEntity().equals(user.getEntity())){
+        User userRequest = TokenToUser.mapTokenToUser(tokenRequest);
+        User userBBDD = findByUsername(userRequest.getUsername());
+        validatePassword(userBBDD.getPassword(), userRequest.getPassword());
+        validateEntity(userBBDD.getEntity(), userRequest.getEntity());
+    }
+
+    /**
+     * Comprueba si la contraseña que tenemos en la base de datos es la misma que nos ha llegado
+     * en la petición
+     * @param passwordBBDD String
+     * @param password String
+     */
+    private void validatePassword(String passwordBBDD, String password) {
+        if(!passwordBBDD.equals(password)){
+            throw new IllegalArgumentException("Usuario / contraseña incorrectos");
+        }
+    }
+
+    /**
+     * Comprueba si la entidad que hay enla base de datos es la misma que nos ha llegado en la petición
+     * @param entityBBDD String
+     * @param entity String
+     */
+    private void validateEntity(String entityBBDD, String entity) {
+        if(!entityBBDD.equals(entity)){
             throw new IllegalArgumentException("Usuario / contraseña incorrectos");
         }
     }

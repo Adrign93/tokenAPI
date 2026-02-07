@@ -2,8 +2,10 @@ package com.adrign93.tokenGenerator.controller;
 
 
 import com.adrign93.tokenGenerator.domain.dto.TokenResponse;
+import com.adrign93.tokenGenerator.exception.ExpirationException;
 import com.adrign93.tokenGenerator.exception.InternalServerException;
 import com.adrign93.tokenGenerator.exception.ResourceNotFoundException;
+import com.adrign93.tokenGenerator.exception.TokenFormatException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,4 +52,28 @@ class GlobalExceptionHandlerTest {
         Assertions.assertEquals("Test", response.getBody().getError().getMessage());
         Assertions.assertFalse(response.getBody().isSuccess());
     }
+
+    @Test
+    void testHandleTokenFormatException() {
+        TokenFormatException exception = new TokenFormatException("Test");
+        ResponseEntity<TokenResponse> response = globalExceptionHandler.handleTokenFormatException(exception);
+        Assertions.assertNotNull(response);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals("Test", response.getBody().getError().getMessage());
+        Assertions.assertFalse(response.getBody().isSuccess());
+    }
+
+
+    @Test
+    void testHandleExpirationException() {
+        ExpirationException exception = new ExpirationException("Test");
+        ResponseEntity<TokenResponse> response = globalExceptionHandler.handleExpirationException(exception);
+        Assertions.assertNotNull(response);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals("Test", response.getBody().getError().getMessage());
+        Assertions.assertFalse(response.getBody().isSuccess());
+    }
+
 }

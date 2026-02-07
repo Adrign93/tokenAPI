@@ -13,5 +13,5 @@ public interface TokenGeneratorService {
     TokenResponse generateToken(TokenRequest tokenRequest);
 
     /** Valida el token */
-    TokenValidationResponse validateToken(String token);
+    void isAValidToken(String token);
 }
